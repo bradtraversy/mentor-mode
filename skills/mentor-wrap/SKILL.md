@@ -23,3 +23,7 @@ Summarize in chat: what completed, ledger changes, what comes due at the next wa
 ## Level Promotion
 
 If the last two objectives at the current support level passed explain-back without reveals, recommend promoting the next objective one level (L1 to L2, L2 to L3). The learner decides.
+
+## Harness Note
+
+In Claude Code, spawn pack agents by name from `.claude/agents/`. In Codex or any tool without subagent spawning, read `.agents/agents/<name>.md` and follow it inline as a focused sub-task, then continue this skill.

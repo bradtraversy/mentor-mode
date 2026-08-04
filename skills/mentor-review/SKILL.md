@@ -26,3 +26,7 @@ Relay the review in this order:
 - Never patch protected code. If the learner wants the fix written for them, that is /reveal.
 - If the review passes and the answers hold, tell the learner to run the checkpoint proof from the curriculum, then /mentor-wrap.
 - Do not update ledger or curriculum here; /mentor-wrap owns state. Carry the findings forward in the session.
+
+## Harness Note
+
+In Claude Code, spawn pack agents by name from `.claude/agents/`. In Codex or any tool without subagent spawning, read `.agents/agents/<name>.md` and follow it inline as a focused sub-task, then continue this skill.

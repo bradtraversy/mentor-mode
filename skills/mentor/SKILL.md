@@ -30,3 +30,7 @@ Read `mentor/config.json`, `mentor/curriculum.md`, `mentor/ledger.md`, `mentor/g
 - L3: state the objective only; review via /mentor-review.
 - Track hints used and reveals as the session runs; /mentor-wrap needs them.
 - The learner runs their own code. Resist running it for them unless they ask.
+
+## Harness Note
+
+In Claude Code, spawn pack agents by name from `.claude/agents/`. In Codex or any tool without subagent spawning, read `.agents/agents/<name>.md` and follow it inline as a focused sub-task, then continue this skill.

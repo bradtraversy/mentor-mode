@@ -54,6 +54,7 @@ knowing how it works.
 | Explain-back gate | An objective completes when your explanation survives probing, not when the code runs. |
 | Spaced recall | Ledger items return at 1, 3, 7, 21 days; revealed code returns as re-derivation from memory. |
 | Fading support | L1 guided walkthrough early, L2 spec-and-attempt, L3 solo build - per objective, promoted with your consent. |
+| Tool adapters | Codex uses `.agents/skills` (`$mentor`); Claude Code uses `.claude/skills` (`/mentor`). The mechanical guard hook is Claude Code only. |
 | File-backed state | Curriculum, ledger, guard, and session logs are files in `mentor/`; clearing context costs nothing. |
 | Local only | No cloud, no telemetry, no accounts. Uninstall removes the pack and leaves your repo untouched. |
 
@@ -61,6 +62,7 @@ knowing how it works.
 
 - [What this is](#what-this-is)
 - [Quick start](#quick-start)
+- [Tool support](#tool-support)
 - [The spec you own](#the-spec-you-own)
 - [What gets generated](#what-gets-generated)
 - [A session, step by step](#a-session-step-by-step)
@@ -90,11 +92,12 @@ Prerequisites:
 node scripts/install.mjs /path/to/your-repo
 ```
 
-This copies the skills, subagents, and guard hook into the target's `.claude/`,
-registers the hook in `.claude/settings.json` (existing settings are preserved
-and the merge is idempotent), seeds `mentor/` from templates without touching
-any existing state, and appends the Mentor Mode rules block to the target's
-`CLAUDE.md`.
+This installs both tool adapters: skills, subagents, and the guard hook into
+the target's `.claude/` (hook registered in `.claude/settings.json`, existing
+settings preserved, merge idempotent), the same skills and agent roles into
+`.agents/` for Codex, `mentor/` seeded from templates without touching any
+existing state, and the Mentor Mode rules block appended to both `CLAUDE.md`
+and `AGENTS.md`.
 
 **2. Write the spec.** Create `mentor/SPEC.md` (or `SPEC.md` at the repo root)
 in the target repo. One page is plenty; see [The spec you own](#the-spec-you-own).
@@ -131,6 +134,25 @@ the guard at the first objective and confirms the hook actually blocks.
 > `/mentor-init` runs once per project. `/mentor` starts every session and
 > `/mentor-wrap` ends it. Wrap before clearing context - it is the save-game
 > step that writes the session into `mentor/`.
+
+## Tool support
+
+| Tool | Skills | Invocation | Enforcement |
+| ---- | ------ | ---------- | ----------- |
+| Claude Code | `.claude/skills/` | `/mentor`, `/mentor-wrap`, ... | Full: the PreToolUse guard hook blocks writes to protected paths mechanically, including honest shell writes. |
+| Codex | `.agents/skills/` | `$mentor`, `$mentor-wrap`, or plain language | Policy: the AGENTS.md rules block is the contract. Same skills, same state files, no mechanical block. |
+
+Both adapters are installed by the same command and read the same `mentor/`
+state, so you can run Monday's session in Claude Code and Wednesday's in Codex
+and the curriculum, ledger, and guard state follow you.
+
+Subagent roles differ by harness: Claude Code spawns them from
+`.claude/agents/`; Codex reads the same role files from `.agents/agents/` and
+adopts them inline. Each skill carries a harness note saying exactly that.
+
+The workflow files are plain markdown, so other AGENTS.md-aware tools (Cursor,
+Gemini CLI, Aider) get the rules block and can follow the skills by reading
+them, but only Claude Code and Codex are supported adapters in v0.1.
 
 ## The spec you own
 
@@ -346,6 +368,7 @@ mentor-mode/
   templates/
     mentor/          state files seeded into a target repo
     CLAUDE-block.md  the rules block appended to a target's CLAUDE.md
+    AGENTS-block.md  the rules block appended to a target's AGENTS.md
   scripts/
     install.mjs      idempotent installer
     uninstall.mjs    manifest-scoped uninstaller
@@ -363,6 +386,10 @@ your-repo/
     hooks/mentor-guard.mjs
     settings.json    hook registered (your settings preserved)
     mentor-manifest.json
+  .agents/
+    skills/          the same seven skills, for Codex ($mentor, ...)
+    agents/          the same four roles, adopted inline by Codex
+  AGENTS.md          your content plus the Mentor Mode rules block
   mentor/
     SPEC.md          yours
     curriculum.md    approved plan
@@ -375,8 +402,9 @@ your-repo/
 
 ## Known limitations
 
-- The guard depends on Claude Code hook execution; other harnesses need their
-  own adapters.
+- The mechanical guard depends on Claude Code hook execution. The Codex
+  adapter runs the identical workflow and state, but enforcement there is the
+  AGENTS.md contract - policy, not a hard block.
 - Bash blocking is an operand-aware heuristic, not shell parsing. Determined
   circumvention can evade it; the CLAUDE.md block forbids circumvention as
   policy and the hook catches the honest cases. This is a practice-contract

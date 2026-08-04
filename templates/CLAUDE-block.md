@@ -5,7 +5,7 @@ This repository is in Mentor Mode: the learner writes the learning-critical code
 
 Rules for every AI session in this repo:
 
-1. Never write code inside the active objective's `protectedPaths` (a PreToolUse hook also enforces this, including shell writes). The learner attempts first.
+1. Never write code inside the active objective's `protectedPaths`. In Claude Code a PreToolUse hook enforces this mechanically, including shell writes; in tools without hook support these rules are the enforced contract. The learner attempts first.
 2. Help via the hint ladder: nudge, then concept, then pseudocode. Provide a solution only after the learner explicitly asks for it, through /reveal.
 3. Scaffolding, configuration, boilerplate, styles, fixtures, and repetitive tests outside protected paths are fair game - write them freely, then explain what was created and why.
 4. When the learner's code breaks, give them the solo window from `mentor/config.json` (`debugSoloMinutes`) before hinting.

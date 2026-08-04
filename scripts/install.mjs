@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const packRoot = path.resolve(fileURLToPath(import.meta.url), "..", "..");
 const MATCHER = "Edit|Write|MultiEdit|NotebookEdit|Bash";
 const HOOK_COMMAND = 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/mentor-guard.mjs"';
+const BEGIN = "<!-- mentor-mode:begin -->";
 
 const actions = [];
 const skipped = [];
@@ -56,56 +57,71 @@ if (fs.existsSync(settingsPath)) {
 }
 
 // A prior manifest is the record of what the pack owns and may safely overwrite.
+// Old flat manifests ({skills, agents, hook}) are read as claude-only ownership.
 const manifestPath = path.join(target, ".claude", "mentor-manifest.json");
-const priorSkills = new Set();
-const priorAgents = new Set();
+const prior = { claude: { skills: new Set(), agents: new Set() }, codex: { skills: new Set(), agents: new Set() } };
 if (fs.existsSync(manifestPath)) {
   try {
-    const prior = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-    if (prior && typeof prior === "object") {
-      if (Array.isArray(prior.skills)) for (const s of prior.skills) if (typeof s === "string") priorSkills.add(s);
-      if (Array.isArray(prior.agents)) for (const a of prior.agents) if (typeof a === "string") priorAgents.add(a);
+    const parsed = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+    if (parsed && typeof parsed === "object") {
+      const claudeSide = parsed.claude && typeof parsed.claude === "object" ? parsed.claude : parsed;
+      const codexSide = parsed.codex && typeof parsed.codex === "object" ? parsed.codex : {};
+      for (const [side, source] of [[prior.claude, claudeSide], [prior.codex, codexSide]]) {
+        if (Array.isArray(source.skills)) for (const s of source.skills) if (typeof s === "string") side.skills.add(s);
+        if (Array.isArray(source.agents)) for (const a of source.agents) if (typeof a === "string") side.agents.add(a);
+      }
     }
   } catch {
     warn("WARNING: existing .claude/mentor-manifest.json is unreadable, treating everything already present as user-owned");
   }
 }
 
-const skillNames = [];
 const skillsSrc = path.join(packRoot, "skills");
-if (fs.existsSync(skillsSrc)) {
+function installSkills(adapterDir, priorOwned) {
+  const names = [];
+  if (!fs.existsSync(skillsSrc)) return names;
   for (const entry of fs.readdirSync(skillsSrc, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    const dest = path.join(target, ".claude", "skills", entry.name);
-    if (fs.existsSync(dest) && !priorSkills.has(entry.name)) {
-      warn('WARNING: skipped skill "' + entry.name + '": .claude/skills/' + entry.name + " already exists and was not installed by mentor-mode");
+    const relDest = adapterDir + "/skills/" + entry.name;
+    const dest = path.join(target, adapterDir, "skills", entry.name);
+    if (fs.existsSync(dest) && !priorOwned.has(entry.name)) {
+      warn('WARNING: skipped skill "' + entry.name + '": ' + relDest + " already exists and was not installed by mentor-mode");
       continue;
     }
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.cpSync(path.join(skillsSrc, entry.name), dest, { recursive: true, force: true });
-    skillNames.push(entry.name);
-    actions.push("installed skill " + entry.name);
+    names.push(entry.name);
+    actions.push("installed skill " + relDest);
   }
+  return names;
 }
-if (skillNames.length === 0) skipped.push("no skills installed from " + skillsSrc);
 
-const agentNames = [];
 const agentsSrc = path.join(packRoot, "agents");
-if (fs.existsSync(agentsSrc)) {
+function installAgents(adapterDir, priorOwned) {
+  const names = [];
+  if (!fs.existsSync(agentsSrc)) return names;
   for (const entry of fs.readdirSync(agentsSrc, { withFileTypes: true })) {
     if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
-    const dest = path.join(target, ".claude", "agents", entry.name);
-    if (fs.existsSync(dest) && !priorAgents.has(entry.name)) {
-      warn('WARNING: skipped agent "' + entry.name + '": .claude/agents/' + entry.name + " already exists and was not installed by mentor-mode");
+    const relDest = adapterDir + "/agents/" + entry.name;
+    const dest = path.join(target, adapterDir, "agents", entry.name);
+    if (fs.existsSync(dest) && !priorOwned.has(entry.name)) {
+      warn('WARNING: skipped agent "' + entry.name + '": ' + relDest + " already exists and was not installed by mentor-mode");
       continue;
     }
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(path.join(agentsSrc, entry.name), dest);
-    agentNames.push(entry.name);
-    actions.push("installed agent " + entry.name);
+    names.push(entry.name);
+    actions.push("installed agent " + relDest);
   }
+  return names;
 }
-if (agentNames.length === 0) skipped.push("no agents installed from " + agentsSrc);
+
+const claudeSkills = installSkills(".claude", prior.claude.skills);
+const claudeAgents = installAgents(".claude", prior.claude.agents);
+const codexSkills = installSkills(".agents", prior.codex.skills);
+const codexAgents = installAgents(".agents", prior.codex.agents);
+if (claudeSkills.length === 0 && codexSkills.length === 0) skipped.push("no skills installed from " + skillsSrc);
+if (claudeAgents.length === 0 && codexAgents.length === 0) skipped.push("no agents installed from " + agentsSrc);
 
 const hookDest = path.join(target, ".claude", "hooks", "mentor-guard.mjs");
 fs.mkdirSync(path.dirname(hookDest), { recursive: true });
@@ -151,27 +167,32 @@ if (entry.hooks.some((h) => h && h.type === "command" && h.command === HOOK_COMM
   actions.push((settingsExisted ? "updated" : "created") + " .claude/settings.json with the PreToolUse hook");
 }
 
-const claudeBlock = fs.readFileSync(path.join(packRoot, "templates", "CLAUDE-block.md"), "utf8");
-const claudePath = path.join(target, "CLAUDE.md");
-if (fs.existsSync(claudePath)) {
-  const existing = fs.readFileSync(claudePath, "utf8");
-  if (existing.includes("<!-- mentor-mode:begin -->")) {
-    skipped.push("CLAUDE.md already contains the mentor-mode block");
-  } else {
+function appendBlock(filePath, blockText, label) {
+  if (fs.existsSync(filePath)) {
+    const existing = fs.readFileSync(filePath, "utf8");
+    if (existing.includes(BEGIN)) {
+      skipped.push(label + " already contains the mentor-mode block");
+      return;
+    }
     const sep = existing === "" ? "" : existing.endsWith("\n") ? "\n" : "\n\n";
-    fs.writeFileSync(claudePath, existing + sep + claudeBlock);
-    actions.push("appended mentor-mode block to CLAUDE.md");
+    fs.writeFileSync(filePath, existing + sep + blockText);
+    actions.push("appended mentor-mode block to " + label);
+  } else {
+    fs.writeFileSync(filePath, blockText);
+    actions.push("created " + label + " with mentor-mode block");
   }
-} else {
-  fs.writeFileSync(claudePath, claudeBlock);
-  actions.push("created CLAUDE.md with mentor-mode block");
 }
+
+const claudeBlock = fs.readFileSync(path.join(packRoot, "templates", "CLAUDE-block.md"), "utf8");
+const agentsBlockPath = path.join(packRoot, "templates", "AGENTS-block.md");
+const agentsBlock = fs.existsSync(agentsBlockPath) ? fs.readFileSync(agentsBlockPath, "utf8") : claudeBlock;
+appendBlock(path.join(target, "CLAUDE.md"), claudeBlock, "CLAUDE.md");
+appendBlock(path.join(target, "AGENTS.md"), agentsBlock, "AGENTS.md");
 
 const manifest = {
   version: "0.1.0",
-  skills: skillNames,
-  agents: agentNames,
-  hook: ".claude/hooks/mentor-guard.mjs",
+  claude: { skills: claudeSkills, agents: claudeAgents, hook: ".claude/hooks/mentor-guard.mjs" },
+  codex: { skills: codexSkills, agents: codexAgents },
   installedAt: new Date().toISOString(),
 };
 fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");

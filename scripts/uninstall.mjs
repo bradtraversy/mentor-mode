@@ -49,6 +49,10 @@ function safeName(name) {
     !name.includes("/") && !name.includes("\\");
 }
 
+function sideNames(source, key) {
+  return (source && Array.isArray(source[key]) ? source[key] : []).filter(safeName);
+}
+
 const manifestPath = path.join(target, ".claude", "mentor-manifest.json");
 let manifest = null;
 if (fs.existsSync(manifestPath)) {
@@ -60,19 +64,36 @@ if (fs.existsSync(manifestPath)) {
 }
 
 if (manifest && typeof manifest === "object") {
-  const skills = (Array.isArray(manifest.skills) ? manifest.skills : []).filter(safeName);
-  const agents = (Array.isArray(manifest.agents) ? manifest.agents : []).filter(safeName);
-  for (const name of skills) {
-    removeIfPresent(path.join(target, ".claude", "skills", name), "skill " + name);
+  // Old flat manifests ({skills, agents, hook}) are claude-only; codex side is skipped.
+  const claudeSide = manifest.claude && typeof manifest.claude === "object" ? manifest.claude : manifest;
+  const codexSide = manifest.codex && typeof manifest.codex === "object" ? manifest.codex : null;
+
+  for (const name of sideNames(claudeSide, "skills")) {
+    removeIfPresent(path.join(target, ".claude", "skills", name), "skill .claude/skills/" + name);
   }
-  for (const name of agents) {
-    removeIfPresent(path.join(target, ".claude", "agents", name), "agent " + name);
+  for (const name of sideNames(claudeSide, "agents")) {
+    removeIfPresent(path.join(target, ".claude", "agents", name), "agent .claude/agents/" + name);
   }
   removeIfPresent(path.join(target, ".claude", "hooks", "mentor-guard.mjs"), "hook .claude/hooks/mentor-guard.mjs");
+
+  if (codexSide) {
+    for (const name of sideNames(codexSide, "skills")) {
+      removeIfPresent(path.join(target, ".agents", "skills", name), "skill .agents/skills/" + name);
+    }
+    for (const name of sideNames(codexSide, "agents")) {
+      removeIfPresent(path.join(target, ".agents", "agents", name), "agent .agents/agents/" + name);
+    }
+  }
+
   removeIfPresent(manifestPath, ".claude/mentor-manifest.json");
   rmdirIfEmpty(path.join(target, ".claude", "skills"), ".claude/skills");
   rmdirIfEmpty(path.join(target, ".claude", "agents"), ".claude/agents");
   rmdirIfEmpty(path.join(target, ".claude", "hooks"), ".claude/hooks");
+  if (codexSide) {
+    rmdirIfEmpty(path.join(target, ".agents", "skills"), ".agents/skills");
+    rmdirIfEmpty(path.join(target, ".agents", "agents"), ".agents/agents");
+    rmdirIfEmpty(path.join(target, ".agents"), ".agents");
+  }
 } else {
   // Without a manifest there is no record of pack ownership, so nothing is deleted.
   console.log("No readable .claude/mentor-manifest.json found, skipping skill, agent, and hook removal.");
@@ -115,25 +136,27 @@ if (fs.existsSync(settingsPath)) {
   }
 }
 
-const claudePath = path.join(target, "CLAUDE.md");
-if (fs.existsSync(claudePath)) {
-  const content = fs.readFileSync(claudePath, "utf8");
+function removeBlock(filePath, label) {
+  if (!fs.existsSync(filePath)) return;
+  const content = fs.readFileSync(filePath, "utf8");
   const begin = content.indexOf(BEGIN);
   const end = content.indexOf(END);
-  if (begin !== -1 && end !== -1 && end >= begin) {
-    let endIdx = end + END.length;
-    if (content[endIdx] === "\n") endIdx += 1;
-    let remainder = content.slice(0, begin) + content.slice(endIdx);
-    if (remainder.trim() === "") {
-      fs.rmSync(claudePath);
-      removed.push("CLAUDE.md (contained only the mentor-mode block)");
-    } else {
-      remainder = remainder.replace(/\n+$/, "\n");
-      fs.writeFileSync(claudePath, remainder);
-      removed.push("mentor-mode block from CLAUDE.md");
-    }
+  if (begin === -1 || end === -1 || end < begin) return;
+  let endIdx = end + END.length;
+  if (content[endIdx] === "\n") endIdx += 1;
+  let remainder = content.slice(0, begin) + content.slice(endIdx);
+  if (remainder.trim() === "") {
+    fs.rmSync(filePath);
+    removed.push(label + " (contained only the mentor-mode block)");
+  } else {
+    remainder = remainder.replace(/\n+$/, "\n");
+    fs.writeFileSync(filePath, remainder);
+    removed.push("mentor-mode block from " + label);
   }
 }
+
+removeBlock(path.join(target, "CLAUDE.md"), "CLAUDE.md");
+removeBlock(path.join(target, "AGENTS.md"), "AGENTS.md");
 
 const mentorDir = path.join(target, "mentor");
 if (purge) {

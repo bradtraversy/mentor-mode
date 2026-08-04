@@ -38,7 +38,7 @@ Write the result to `mentor/curriculum.md`, then present the phase list and firs
 1. Fill `mentor/config.json`: learner, background, cadence from the interview. Keep defaults for the rest.
 2. Copy the first objective's id, title, and protectedPaths into `mentor/guard.json` activeObjective, set mode to "on", mark the objective in-progress in the curriculum, and update its "Active objective:" line.
 3. Confirm `mentor/ledger.md` and `mentor/sessions/` exist.
-4. Verify the guard bites: attempt a trivial Write to a path inside the first protected glob and confirm the hook blocks it. If the first objective has empty protectedPaths, skip this check and note why.
+4. Verify the guard bites (Claude Code only): attempt a trivial Write to a path inside the first protected glob and confirm the hook blocks it. If the first objective has empty protectedPaths, skip this check and note why. In tools without hook support, skip the check and state plainly that enforcement here is the AGENTS.md contract, not a mechanical block.
 5. Tell the learner: mode is on, the first objective, the cadence, and that every session starts with /mentor.
 
 ## Rules
@@ -46,3 +46,7 @@ Write the result to `mentor/curriculum.md`, then present the phase list and firs
 - Never invent protected paths the curriculum does not define.
 - The learner approves the curriculum before activation.
 - This skill sets up state; it does not start teaching. That is /mentor.
+
+## Harness Note
+
+In Claude Code, spawn pack agents by name from `.claude/agents/`. In Codex or any tool without subagent spawning, read `.agents/agents/<name>.md` and follow it inline as a focused sub-task, then continue this skill.
