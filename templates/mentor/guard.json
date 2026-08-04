@@ -1,0 +1,14 @@
+{
+  "mode": "on",
+  "activeObjective": {
+    "id": null,
+    "title": null,
+    "protectedPaths": []
+  },
+  "reveal": {
+    "active": false,
+    "objectiveId": null,
+    "grantedAt": null
+  },
+  "revealQueue": []
+}

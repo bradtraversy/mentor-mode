@@ -1,0 +1,13 @@
+{
+  "learner": "",
+  "background": "",
+  "cadence": "2-3 sessions per week, 45-90 minutes",
+  "debugSoloMinutes": 15,
+  "hintLadder": ["nudge", "concept", "pseudocode", "reveal on explicit request"],
+  "supportLevels": {
+    "L1": "guided walkthrough - mentor names the file to create or open, dictates code in small chunks for the learner to type, and narrates what each chunk does and why",
+    "L2": "spec and attempt - mentor specs the behavior, learner implements, review after",
+    "L3": "solo build - learner implements from the objective alone, PR-style review"
+  },
+  "reviewIntervalsDays": [1, 3, 7, 21]
+}
