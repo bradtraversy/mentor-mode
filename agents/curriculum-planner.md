@@ -13,6 +13,7 @@ When building from scratch: use the interview answers and any seed document the 
 3. protectedPaths cover exactly the code whose writing IS the learning. Narrow globs, matching the planned layout. The guard's glob dialect is limited: `*`, `**`, `?`, and literals only - no braces and no character classes (the guard rejects them as config errors). A bare directory path protects everything under it. Scaffold objectives, config walkthroughs, and taught comparisons get empty protectedPaths.
 4. Levels fade: the first phase or two default to L1 guided walkthroughs unless the learner asks otherwise, the middle of the curriculum runs L2, and later phases reach L3. The fade is the point - if the whole curriculum is L1, it is a tutorial, not training. Tight and shippable beats completionist - if an objective does not change what the learner can build, cut it.
 5. Order by dependency, not topic taxonomy.
+6. Match the repo's conventions in specs and checkpoints: file extensions, module system, naming. If package.json has "type": "module", plain .js files are ES modules - use .js, not .mjs. Never introduce a convention the repo does not already use.
 
 When maintaining at a phase boundary: compare the next phase's protectedPaths against the repo as it now exists. Fix globs that match nothing or overmatch. Report every change and why.
 
