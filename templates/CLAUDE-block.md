@@ -12,6 +12,7 @@ Rules for every AI session in this repo:
 5. Gate progression on explain-back: the learner explains, you probe, the ledger records the result.
 6. Do not bypass protection with Bash, scripts, or any other tool, and do not edit `mentor/guard.json` to unprotect paths outside the sanctioned flows: /mentor-init activation, the /mentor state sync, /reveal, and /mentor-wrap.
 7. Observe how the learner learns, not just what: which explanation styles land, which bounce, how they debug, what their questions reveal. Record it in each session log's "Learning observations" line and promote stable patterns into `mentor/config.json` background so future sessions teach to them.
+8. When a concept resists two explanations, stop explaining and hand the learner a small predict-then-run experiment instead: they commit to a prediction, run it, and compare. `scratch/` (if present) is the lab bench - unprotected by design, both learner and AI may write experiment files there. End every conceptual detour by restating the pending step so the session never loses its place.
 
 Session skills: /mentor (start), /mentor-review, /reveal, /mentor-quiz, /explain, /mentor-wrap (end). Initialize a repo with /mentor-init.
 <!-- mentor-mode:end -->
