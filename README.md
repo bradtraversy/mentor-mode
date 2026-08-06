@@ -92,12 +92,38 @@ Prerequisites:
 node scripts/install.mjs /path/to/your-repo
 ```
 
-This installs both tool adapters: skills, subagents, and the guard hook into
-the target's `.claude/` (hook registered in `.claude/settings.json`, existing
-settings preserved, merge idempotent), the same skills and agent roles into
-`.agents/` for Codex, `mentor/` seeded from templates without touching any
-existing state, and the Mentor Mode rules block appended to both `CLAUDE.md`
-and `AGENTS.md`.
+The installer asks a short machine-level interview - four questions, under a
+minute, each with a default. Learner-level questions (spec, background,
+cadence) are not asked here; those belong to `/mentor-init`.
+
+| Question | Default | Flag |
+| ---- | ---- | ---- |
+| Which harness - Claude Code, Codex, or both? | both | `--claude`, `--codex`, `--both` |
+| Disable inline AI suggestions in this workspace (VS Code)? | no | `--vscode`, `--no-vscode` |
+| Create a `scratch/` lab directory for experiments? | yes | `--scratch`, `--no-scratch` |
+| Add `scratch/` to `.gitignore`? | yes | `--gitignore`, `--no-gitignore` |
+
+`--defaults` answers everything with the default, and a non-interactive run
+(no terminal) does the same. Flags answer individual questions up front;
+anything unanswered is asked.
+
+What lands depends on the harness answer: the Claude Code side installs
+skills, subagents, and the guard hook into `.claude/` (hook registered in
+`.claude/settings.json`, existing settings preserved, merge idempotent) plus
+the rules block in `CLAUDE.md`; the Codex side installs the same skills and
+agent roles into `.agents/` plus the rules block in `AGENTS.md`. Both answers
+seed `mentor/` from templates without touching any existing state, and the
+installer states the enforcement consequence of your choice out loud -
+mechanical guard for Claude Code, contract-only for Codex.
+
+The VS Code question exists because inline AI completions are keystroke-level:
+the guard hook never sees them, so ghost text can quietly type the code the
+learner is supposed to produce. Saying yes merges a single key
+(`editor.inlineSuggest.enabled: false`) into `.vscode/settings.json`,
+workspace-scoped, never clobbering existing settings. It defaults to no
+because it touches editor behavior - opt in deliberately, and if you use a
+different editor, disable its AI completions for this repo yourself (rule 9 of
+the contract states this tool-neutrally).
 
 **2. Write the spec.** Create `mentor/SPEC.md` (or `SPEC.md` at the repo root)
 in the target repo. One page is plenty; see [The spec you own](#the-spec-you-own).
@@ -220,6 +246,14 @@ minutes, configurable) before the mentor says anything - debugging is the
 fastest-atrophying skill, so broken states are treated as curriculum, not
 obstacles.
 
+Questions are welcome at any point - they are the mechanism, not a detour -
+and every tangent ends with the mentor restating the one pending step, so the
+session never loses its place. When a concept refuses to land after two
+explanations, the mentor stops explaining and hands you a predict-then-run
+experiment instead: you commit to what the code will do, run it, and compare.
+The `scratch/` directory is the lab bench for these - unprotected by design,
+writable by both of you, ignored by git.
+
 **Review.** `/mentor-review` diffs your work and spawns the reviewer, which
 teaches rather than patches: what is genuinely good, what is wrong and what
 breaks because of it, and two or three probing questions answered one at a
@@ -231,6 +265,15 @@ built, why it is shaped that way, and what would break if. Pass it and the
 objective completes, the guard moves to the next objective, the ledger gains
 rows, and a session log is written. Fail it and the objective stays open, with
 exactly what remains stated plainly.
+
+Two humane exceptions: if you already explained your work mid-session and the
+mentor probed it, that result carries - no re-quiz. And if you are stopping
+early at a wall (fatigue is real, and mid-objective stops are valid), the gate
+is skipped entirely: the log stays honest, the concepts enter the ledger at
+their earned confidence, and they come due at the next warmup instead. The
+session log also records how you learn - what landed, what bounced - and
+patterns that hold get promoted into your config so future sessions teach to
+them.
 
 ## Support levels and the fade
 
@@ -352,7 +395,10 @@ node scripts/uninstall.mjs /path/to/your-repo --purge  # removes mentor/ too
 Removal is manifest-scoped: only what the installer created is touched. Your
 own skills, agents, settings, and CLAUDE.md content survive, even on name
 collisions - the installer refuses to overwrite anything it does not own and
-warns instead.
+warns instead. Installer-made edits to `.vscode/settings.json` and
+`.gitignore` are undone only when the manifest records that the installer made
+them and they still hold the installed value. `scratch/` is kept like
+`mentor/`; `--purge` removes both.
 
 ## File map
 
@@ -397,6 +443,9 @@ your-repo/
     ledger.md        what you can explain, with review dates
     config.json      learner profile and knobs
     sessions/        one log per session
+  scratch/           experiment lab bench (default yes, gitignored)
+  .vscode/
+    settings.json    inline AI suggestions off (opt-in, --vscode)
   CLAUDE.md          your content plus the Mentor Mode rules block
 ```
 
