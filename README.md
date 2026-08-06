@@ -443,9 +443,25 @@ mentor-mode/
     CLAUDE-block.md  the rules block appended to a target's CLAUDE.md
     AGENTS-block.md  the rules block appended to a target's AGENTS.md
   scripts/
-    smoke-package.mjs packs, installs, and exercises the tarball
-                      (npm run test:package)
+    smoke-package.js packs, installs, and exercises the tarball
+                     (npm run test:package)
 ```
+
+This repo has no `mentor/`, `.claude/`, or `.agents/` of its own, and that is
+deliberate - it is the source that creates those elsewhere, not an installed
+instance. The installer refuses to install the pack into its own repo.
+
+What becomes what:
+
+| In the pack | Installed into your repo as |
+| ---- | ---- |
+| `skills/` | `.claude/skills/` and `.agents/skills/` |
+| `agents/` | `.claude/agents/` and `.agents/agents/` |
+| `hooks/mentor-guard.mjs` | `.claude/hooks/mentor-guard.mjs`, registered in `.claude/settings.json` |
+| `templates/mentor/` | `mentor/` - curriculum, guard, ledger, config, sessions |
+| `templates/CLAUDE-block.md` | appended to your `CLAUDE.md` |
+| `templates/AGENTS-block.md` | appended to your `AGENTS.md` |
+| `bin/`, `lib/`, `scripts/` | nothing - the installer itself, never copied |
 
 A target repo after install and init:
 
