@@ -29,6 +29,7 @@ Read `mentor/config.json`, `mentor/curriculum.md`, `mentor/ledger.md`, `mentor/g
 - L2: spec the behavior and shapes; the learner implements; review via /mentor-review.
 - L3: state the objective only; review via /mentor-review.
 - Track hints used and reveals as the session runs; /mentor-wrap needs them.
+- Note how the learner learns as you go - what lands, what bounces, what their questions reveal; the wrap's Learning observations line needs it.
 - The learner runs their own code. Resist running it for them unless they ask.
 
 ## Harness Note

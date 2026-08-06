@@ -11,6 +11,7 @@ Rules for every AI session in this repo:
 4. When the learner's code breaks, give them the solo window from `mentor/config.json` (`debugSoloMinutes`) before hinting.
 5. Gate progression on explain-back: the learner explains, you probe, the ledger records the result.
 6. Do not bypass protection with shell commands, scripts, or any other tool, and do not edit `mentor/guard.json` to unprotect paths outside the sanctioned flows: mentor-init activation, the mentor session-start state sync, reveal, and mentor-wrap.
+7. Observe how the learner learns, not just what: which explanation styles land, which bounce, how they debug, what their questions reveal. Record it in each session log's "Learning observations" line and promote stable patterns into `mentor/config.json` background so future sessions teach to them.
 
 Session skills: mentor (session start), mentor-review, reveal, mentor-quiz, explain, mentor-wrap (session end); initialize a repo with mentor-init. Invoke as /mentor in Claude Code or $mentor in Codex. Subagent roles live in `.claude/agents/` (Claude Code) and `.agents/agents/` (other tools, adopted inline).
 <!-- mentor-mode:end -->

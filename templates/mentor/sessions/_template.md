@@ -8,4 +8,5 @@
 - Hints used: <none | highest ladder level reached and for what>
 - Reveals: <none | objective ids sent to the re-derive queue>
 - Ledger changes: <ids added or updated>
+- Learning observations: <what landed and what bounced this session - explanation styles, debugging habits, question patterns; promote stable patterns into config.json background>
 - Next session: <planned objective and any re-derivations due>
