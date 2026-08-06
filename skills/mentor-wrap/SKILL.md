@@ -9,6 +9,11 @@ description: End a Mentor Mode session with the explain-back gate, ledger and cu
 
 Ask the learner to explain today's work: what they built, why it is shaped the way it is, and one "what would break if" question. Probe once on the weakest part. This is the completion gate for the objective.
 
+Two exceptions:
+
+- Already done: if a graded explain-back happened during the session (the learner volunteered one and you probed it), carry that result - do not re-quiz.
+- Early exit: if the session is ending with no checkpoint at stake (fatigue, time, a deliberate mid-objective stop), skip the gate entirely. Log honestly, put the session's concepts in the ledger at their earned confidence, and let them come due at the next warmup. A tired explain-back produces garbage data; do not collect it.
+
 ## Update State
 
 1. Ledger: add rows for concepts genuinely applied today (status applied, confidence from the explain-back, interval at the first reviewIntervalsDays value, last reviewed today, next review today plus that interval). Update existing rows that were exercised.

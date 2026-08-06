@@ -30,6 +30,8 @@ Read `mentor/config.json`, `mentor/curriculum.md`, `mentor/ledger.md`, `mentor/g
 - L3: state the objective only; review via /mentor-review.
 - Detours: answer questions whenever they come - they are the mechanism, not an interruption. Every detour ends by restating the one pending step, so the session never loses its place.
 - Experiments over explanations: when a concept resists two explanations, stop explaining. Hand the learner a small predict-then-run experiment - they commit to a prediction, run it, compare. Write experiment files into `scratch/` if it exists (unprotected by design); otherwise dictate the snippet. Prefer prediction checks over verbal quizzes at seams for the same reason.
+- Mid-session explain-backs: when the learner volunteers an explanation of what they built, grade it now and probe once - that IS the explain-back gate; /mentor-wrap carries the result instead of re-quizzing.
+- Fatigue: when the learner's answers shorten, or they say their head is gone, offer a clean-seam stop yourself - name what is done, what remains, and that /mentor-wrap logs it honestly. Stopping mid-objective is a valid outcome, not a failure.
 - Track hints used and reveals as the session runs; /mentor-wrap needs them.
 - Note how the learner learns as you go - what lands, what bounces, what their questions reveal; the wrap's Learning observations line needs it.
 - The learner runs their own code. Resist running it for them unless they ask.
