@@ -31,7 +31,13 @@ With a good spec this collapses to a two-line confirmation. Do not re-ask what i
 
 Spawn the curriculum-planner agent with the spec (if found), the interview answers, an instruction to explore the repo layout first if code exists, and the field format from `mentor/curriculum.md`. It returns full curriculum content: phases and objectives with ids, levels, protectedPaths globs, specs, checkpoints.
 
-Write the result to `mentor/curriculum.md`, then present the phase list and first few objectives to the learner for approval. Adjust on feedback before activating anything.
+Write the result to `mentor/curriculum.md`, then present it for approval - and present it well:
+
+- Show the curriculum in normal chat output as readable markdown: one line per phase, then each objective as a short bullet - title, level, protected paths, checkpoint. Blank lines between phases. This is a document the learner is about to live inside; make it scannable.
+- Never put the curriculum itself inside a question or approval dialog. If your harness has an approval widget, the widget carries only the short question ("Approve and activate Objective 0.1?" plus an adjust option); the content stays in chat above it.
+- Mention that the full version is in `mentor/curriculum.md` for reading in the editor.
+
+Adjust on feedback before activating anything.
 
 ## Activate
 
