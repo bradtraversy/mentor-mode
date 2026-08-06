@@ -1,6 +1,6 @@
 {
   "name": "create-mentor-mode",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A per-repo AI workflow pack that teaches you to build your project instead of building it for you.",
   "license": "MIT",
   "author": "Brad Traversy",
