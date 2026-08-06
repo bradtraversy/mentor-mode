@@ -158,11 +158,72 @@ function removeBlock(filePath, label) {
 removeBlock(path.join(target, "CLAUDE.md"), "CLAUDE.md");
 removeBlock(path.join(target, "AGENTS.md"), "AGENTS.md");
 
+// Installer-made editor and gitignore edits are undone only when the manifest
+// says the installer made them, and only if they still hold the installed value.
+const opts = manifest && typeof manifest === "object" && manifest.options && typeof manifest.options === "object"
+  ? manifest.options
+  : {};
+
+if (opts.vscode) {
+  const vscodePath = path.join(target, ".vscode", "settings.json");
+  if (fs.existsSync(vscodePath)) {
+    try {
+      const vs = JSON.parse(fs.readFileSync(vscodePath, "utf8"));
+      if (vs && typeof vs === "object" && !Array.isArray(vs) && vs["editor.inlineSuggest.enabled"] === false) {
+        delete vs["editor.inlineSuggest.enabled"];
+        if (Object.keys(vs).length === 0) {
+          fs.rmSync(vscodePath);
+          removed.push(".vscode/settings.json (contained only the mentor-mode setting)");
+          rmdirIfEmpty(path.join(target, ".vscode"), ".vscode");
+        } else {
+          fs.writeFileSync(vscodePath, JSON.stringify(vs, null, 2) + "\n");
+          removed.push("inline-suggestions setting from .vscode/settings.json");
+        }
+      }
+    } catch {
+      kept.push(".vscode/settings.json (not valid JSON, left untouched)");
+    }
+  }
+}
+
+if (opts.gitignore) {
+  const giPath = path.join(target, ".gitignore");
+  if (fs.existsSync(giPath)) {
+    const content = fs.readFileSync(giPath, "utf8");
+    const lines = content.split("\n");
+    const filtered = [];
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].trim() === "# mentor-mode" && i + 1 < lines.length && lines[i + 1].trim() === "scratch/") {
+        i += 1;
+        continue;
+      }
+      filtered.push(lines[i]);
+    }
+    if (filtered.length !== lines.length) {
+      const remainder = filtered.join("\n");
+      if (remainder.trim() === "") {
+        fs.rmSync(giPath);
+        removed.push(".gitignore (contained only the mentor-mode entries)");
+      } else {
+        fs.writeFileSync(giPath, remainder);
+        removed.push("mentor-mode entries from .gitignore");
+      }
+    }
+  }
+}
+
 const mentorDir = path.join(target, "mentor");
 if (purge) {
   removeIfPresent(mentorDir, "mentor/ (purged)");
 } else if (fs.existsSync(mentorDir)) {
   kept.push("mentor/ (learner state, use --purge to delete)");
+}
+
+const scratchDir = path.join(target, "scratch");
+if (purge) {
+  removeIfPresent(scratchDir, "scratch/ (purged)");
+} else if (fs.existsSync(scratchDir)) {
+  kept.push("scratch/ (experiments, use --purge to delete)");
 }
 
 console.log("Mentor Mode uninstalled from " + target);
