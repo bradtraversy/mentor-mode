@@ -45,7 +45,7 @@ Adjust on feedback before activating anything.
 2. Copy the first objective's id, title, and protectedPaths into `mentor/guard.json` activeObjective, set mode to "on", mark the objective in-progress in the curriculum, and update its "Active objective:" line.
 3. Confirm `mentor/ledger.md` and `mentor/sessions/` exist.
 4. Verify the guard bites (Claude Code only): attempt a trivial Write to a path inside the first protected glob and confirm the hook blocks it. If the first objective has empty protectedPaths, skip this check and note why. In tools without hook support, skip the check and state plainly that enforcement here is the AGENTS.md contract, not a mechanical block.
-5. Tell the learner: mode is on, the first objective, the cadence, and that every session starts with /mentor.
+5. Tell the learner: mode is on, the first objective, the cadence, and that every session starts with /mentor. If a `scratch/` directory exists, mention it: the shared lab bench for experiments, unprotected by design.
 
 ## Rules
 
