@@ -24,10 +24,14 @@ function check(label, fn) {
 
 try {
   console.log("packing tarball");
-  const packed = JSON.parse(
-    execFileSync(npm, ["pack", "--json", "--pack-destination", work], { cwd: packRoot, encoding: "utf8" })
-  );
-  const tarball = path.join(work, packed[0].filename);
+  // Read the tarball off disk rather than parsing `npm pack --json`, whose
+  // output shape has moved between npm versions.
+  execFileSync(npm, ["pack", "--pack-destination", work], { cwd: packRoot, encoding: "utf8" });
+  const tarballs = fs.readdirSync(work).filter((f) => f.endsWith(".tgz"));
+  if (tarballs.length !== 1) {
+    throw new Error("expected exactly one packed tarball, found " + JSON.stringify(tarballs));
+  }
+  const tarball = path.join(work, tarballs[0]);
 
   console.log("installing tarball into a clean prefix");
   const prefix = path.join(work, "prefix");
