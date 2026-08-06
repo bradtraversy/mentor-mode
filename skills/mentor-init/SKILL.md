@@ -9,7 +9,7 @@ Turn this repository into a Mentor Mode learning environment.
 
 ## Preconditions
 
-1. Verify the pack is installed: `.claude/hooks/mentor-guard.mjs` exists and `.claude/settings.json` has the PreToolUse entry that runs it. If not, stop and tell the user to run the pack installer first (`node scripts/install.mjs <this repo>` from the pack repo).
+1. Verify the pack is installed: `.claude/hooks/mentor-guard.mjs` exists and `.claude/settings.json` has the PreToolUse entry that runs it. If not, stop and tell the user to run the pack installer first (`npx mentor-mode@latest` in this repo).
 2. If `mentor/curriculum.md` already contains real objectives instead of the template placeholder, the repo is initialized: report current state and suggest /mentor instead.
 
 ## Find The Spec

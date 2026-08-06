@@ -12,7 +12,8 @@ hook physically prevents it from writing the code you are supposed to learn.
 Install it into any Git repository:
 
 ```bash
-node scripts/install.mjs /path/to/your-repo
+cd /path/to/your-repo
+npx mentor-mode@latest
 ```
 
 ## What this is
@@ -86,11 +87,16 @@ Prerequisites:
 - Claude Code
 - a Git repository to learn in - fresh and empty works, an existing codebase works too
 
-**1. Install the pack** from a clone of this repo:
+**1. Install the pack** by running it inside the repo you want to learn in:
 
 ```bash
-node scripts/install.mjs /path/to/your-repo
+cd /path/to/your-repo
+npx mentor-mode@latest
 ```
+
+The target defaults to the current directory; pass a path to install elsewhere
+(`npx mentor-mode@latest ~/code/my-repo`). Node 18 or newer is required, which
+you already have if the guard hook is going to run at all.
 
 The installer asks a short machine-level interview - four questions, under a
 minute, each with a default. Learner-level questions (spec, background,
@@ -106,6 +112,19 @@ cadence) are not asked here; those belong to `/mentor-init`.
 `--defaults` answers everything with the default, and a non-interactive run
 (no terminal) does the same. Flags answer individual questions up front;
 anything unanswered is asked.
+
+Three commands, all with the same target-defaults-to-cwd rule:
+
+```bash
+npx mentor-mode@latest              # install (the default command)
+npx mentor-mode@latest update       # refresh pack files, reusing your recorded options
+npx mentor-mode@latest uninstall    # remove what the installer created
+```
+
+`update` is how you take a newer version of the skills, agents, and guard hook:
+it reads the options recorded in `.claude/mentor-manifest.json`, asks nothing,
+and never touches `mentor/` state. Upgrading the pack cannot cost you your
+ledger.
 
 What lands depends on the harness answer: the Claude Code side installs
 skills, subagents, and the guard hook into `.claude/` (hook registered in
@@ -388,8 +407,8 @@ wrap-then-clear habit anyway - same muscle as commit-before-switching-branches.
 ## Uninstall
 
 ```bash
-node scripts/uninstall.mjs /path/to/your-repo          # keeps mentor/ state
-node scripts/uninstall.mjs /path/to/your-repo --purge  # removes mentor/ too
+npx mentor-mode@latest uninstall           # keeps mentor/ state and scratch/
+npx mentor-mode@latest uninstall --purge   # removes them too
 ```
 
 Removal is manifest-scoped: only what the installer created is touched. Your
@@ -406,6 +425,11 @@ The pack repo (this repository):
 
 ```text
 mentor-mode/
+  bin/
+    mentor-mode.mjs  the CLI (install, update, uninstall)
+  lib/
+    install.mjs      idempotent install, returns a report
+    uninstall.mjs    manifest-scoped removal
   skills/            seven session skills (source)
   agents/            four subagents (source)
   hooks/
@@ -416,8 +440,8 @@ mentor-mode/
     CLAUDE-block.md  the rules block appended to a target's CLAUDE.md
     AGENTS-block.md  the rules block appended to a target's AGENTS.md
   scripts/
-    install.mjs      idempotent installer
-    uninstall.mjs    manifest-scoped uninstaller
+    smoke-package.mjs packs, installs, and exercises the tarball
+                      (npm run test:package)
 ```
 
 A target repo after install and init:
@@ -462,7 +486,6 @@ your-repo/
   differently cased path can slip past.
 - Protected globs support `*`, `**`, `?`, and literals only, by design.
 - Spaced repetition is simple due dates, not a full SRS.
-- Install is by local script; no npx installer yet.
 
 ## Notes
 
