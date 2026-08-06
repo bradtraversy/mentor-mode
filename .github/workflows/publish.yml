@@ -1,0 +1,62 @@
+name: Publish create-mentor-mode
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: https://registry.npmjs.org
+      - name: Update npm for trusted publishing
+        run: |
+          npm install -g npm@latest
+          npm --version
+      - name: Test the guard hook
+        run: npm test
+      - name: Smoke test the packed tarball
+        run: npm run test:package
+      - name: Verify tag matches package version
+        if: github.ref_type == 'tag'
+        run: node -e "const v = require('./package.json').version; const t = process.env.GITHUB_REF_NAME; if (t !== 'v' + v) { console.error('Tag ' + t + ' does not match package version ' + v); process.exit(1); }"
+      - name: Publish to npm
+        run: |
+          package_version=$(node -p "require('./package.json').version")
+          if npm view "create-mentor-mode@$package_version" version >/dev/null 2>&1; then
+            echo "create-mentor-mode@$package_version is already published."
+          else
+            npm publish
+          fi
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: publish
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "GitHub release $GITHUB_REF_NAME already exists."
+          else
+            gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
+          fi
