@@ -10,10 +10,10 @@ import { uninstall } from "../lib/uninstall.mjs";
 
 const packRoot = path.resolve(fileURLToPath(import.meta.url), "..", "..");
 
-const USAGE = `mentor-mode - a per-repo AI workflow pack that teaches you to build your project
+const USAGE = `create-mentor-mode - a per-repo AI workflow pack that teaches you to build your project
 
 Usage:
-  npx mentor-mode@latest [command] [target] [options]
+  npx create-mentor-mode@latest [command] [target] [options]
 
 Commands:
   install      add the pack to a repository (default)

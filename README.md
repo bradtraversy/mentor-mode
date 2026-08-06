@@ -13,7 +13,7 @@ Install it into any Git repository:
 
 ```bash
 cd /path/to/your-repo
-npx mentor-mode@latest
+npx create-mentor-mode@latest
 ```
 
 ## What this is
@@ -91,12 +91,14 @@ Prerequisites:
 
 ```bash
 cd /path/to/your-repo
-npx mentor-mode@latest
+npx create-mentor-mode@latest
 ```
 
+You can also run `npm create mentor-mode@latest`.
+
 The target defaults to the current directory; pass a path to install elsewhere
-(`npx mentor-mode@latest ~/code/my-repo`). Node 18 or newer is required, which
-you already have if the guard hook is going to run at all.
+(`npx create-mentor-mode@latest ~/code/my-repo`). Node 18 or newer is
+required, which you already have if the guard hook is going to run at all.
 
 The installer asks a short machine-level interview - four questions, under a
 minute, each with a default. Learner-level questions (spec, background,
@@ -116,9 +118,9 @@ anything unanswered is asked.
 Three commands, all with the same target-defaults-to-cwd rule:
 
 ```bash
-npx mentor-mode@latest              # install (the default command)
-npx mentor-mode@latest update       # refresh pack files, reusing your recorded options
-npx mentor-mode@latest uninstall    # remove what the installer created
+npx create-mentor-mode@latest              # install (the default command)
+npx create-mentor-mode@latest update       # refresh pack files, reusing your recorded options
+npx create-mentor-mode@latest uninstall    # remove what the installer created
 ```
 
 `update` is how you take a newer version of the skills, agents, and guard hook:
@@ -407,8 +409,8 @@ wrap-then-clear habit anyway - same muscle as commit-before-switching-branches.
 ## Uninstall
 
 ```bash
-npx mentor-mode@latest uninstall           # keeps mentor/ state and scratch/
-npx mentor-mode@latest uninstall --purge   # removes them too
+npx create-mentor-mode@latest uninstall           # keeps mentor/ state and scratch/
+npx create-mentor-mode@latest uninstall --purge   # removes them too
 ```
 
 Removal is manifest-scoped: only what the installer created is touched. Your

@@ -35,7 +35,7 @@ try {
   fs.writeFileSync(path.join(prefix, "package.json"), JSON.stringify({ name: "smoke-host", private: true }) + "\n");
   execFileSync(npm, ["install", "--no-audit", "--no-fund", tarball], { cwd: prefix, encoding: "utf8" });
 
-  const cli = path.join(prefix, "node_modules", "mentor-mode", "bin", "mentor-mode.mjs");
+  const cli = path.join(prefix, "node_modules", "create-mentor-mode", "bin", "create-mentor-mode.mjs");
   check("bin ships in the tarball", () => assert.ok(fs.existsSync(cli)));
 
   const repo = path.join(work, "repo");
