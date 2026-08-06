@@ -1,9 +1,43 @@
 {
   "name": "mentor-mode",
   "version": "0.1.0",
-  "private": true,
+  "description": "A per-repo AI workflow pack that teaches you to build your project instead of building it for you.",
+  "license": "MIT",
+  "author": "Brad Traversy",
   "type": "module",
+  "bin": {
+    "mentor-mode": "bin/mentor-mode.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "skills",
+    "agents",
+    "hooks/mentor-guard.mjs",
+    "templates",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "test": "node --test hooks/*.test.mjs"
+    "test": "node --test hooks/*.test.mjs",
+    "test:package": "node scripts/smoke-package.mjs"
+  },
+  "keywords": [
+    "ai",
+    "learning",
+    "mentor",
+    "claude-code",
+    "codex",
+    "skills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bradtraversy/mentor-mode.git"
+  },
+  "homepage": "https://github.com/bradtraversy/mentor-mode#readme",
+  "bugs": {
+    "url": "https://github.com/bradtraversy/mentor-mode/issues"
   }
 }
