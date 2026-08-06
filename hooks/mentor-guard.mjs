@@ -1,3 +1,4 @@
+// .mjs, not .js: this runs inside target repos that may declare "type": "commonjs".
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
