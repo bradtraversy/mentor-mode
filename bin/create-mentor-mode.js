@@ -5,8 +5,8 @@ import process from "node:process";
 import readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 
-import { DEFAULT_OPTIONS, install, readManifest } from "../lib/install.mjs";
-import { uninstall } from "../lib/uninstall.mjs";
+import { DEFAULT_OPTIONS, install, readManifest } from "../lib/install.js";
+import { uninstall } from "../lib/uninstall.js";
 
 const packRoot = path.resolve(fileURLToPath(import.meta.url), "..", "..");
 

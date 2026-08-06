@@ -428,15 +428,16 @@ The pack repo (this repository):
 ```text
 mentor-mode/
   bin/
-    mentor-mode.mjs  the CLI (install, update, uninstall)
+    create-mentor-mode.js  the CLI (install, update, uninstall)
   lib/
-    install.mjs      idempotent install, returns a report
-    uninstall.mjs    manifest-scoped removal
+    install.js       idempotent install, returns a report
+    uninstall.js     manifest-scoped removal
   skills/            seven session skills (source)
   agents/            four subagents (source)
   hooks/
-    mentor-guard.mjs the guardrail hook
-    guard.test.mjs   its test suite (npm test)
+    mentor-guard.mjs the guardrail hook - .mjs on purpose, since it runs
+                     inside target repos that may be CommonJS
+    guard.test.js    its test suite (npm test)
   templates/
     mentor/          state files seeded into a target repo
     CLAUDE-block.md  the rules block appended to a target's CLAUDE.md

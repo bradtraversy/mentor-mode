@@ -6,7 +6,7 @@
   "author": "Brad Traversy",
   "type": "module",
   "bin": {
-    "create-mentor-mode": "bin/create-mentor-mode.mjs"
+    "create-mentor-mode": "bin/create-mentor-mode.js"
   },
   "files": [
     "bin",
@@ -21,8 +21,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test hooks/*.test.mjs",
-    "test:package": "node scripts/smoke-package.mjs"
+    "test": "node --test hooks/*.test.js",
+    "test:package": "node scripts/smoke-package.js"
   },
   "keywords": [
     "ai",
